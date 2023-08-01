@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\PrimeiraAPI",
+    "\\PrimeiraAPI\\Controllers",
+    "\\PrimeiraAPI\\Controllers\\v1",
+    "\\PrimeiraAPI\\Domain",
+    "\\PrimeiraAPI\\Infraestrutura",
+    "\\PrimeiraAPI\\Migrations",
+    "\\PrimeiraAPI\\obj",
+    "\\PrimeiraAPI\\Properties"
+  ],
+  "SelectedNode": "\\PrimeiraAPI\\Controllers\\v1\\EmployeeController.cs",
+  "PreviewInSolutionExplorer": false
+}
