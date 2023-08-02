@@ -1,3 +1,7 @@
+using Consultorio.Context;
+using Consultorio.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,15 +11,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+//Capturando string de conexão do appsettings
+var connectionString = builder.Configuration.GetConnectionString("Default");
+
+// Agora você pode configurar o DbContext usando a string de conexão e o assembly de migrações.
+builder.Services.AddDbContext<ConsultorioContext>(options =>
+{
+    options.UseNpgsql(connectionString,
+        b => b.MigrationsAssembly(typeof(ConsultorioContext).Assembly.FullName));
+});
+
 var app = builder.Build();
-
-var configBuilder = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
- .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-var configuration = configBuilder.Build();
-
-var teste = configuration["testeKey"];
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
