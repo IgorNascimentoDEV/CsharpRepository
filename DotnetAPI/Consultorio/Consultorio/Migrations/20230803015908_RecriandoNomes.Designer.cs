@@ -3,6 +3,7 @@ using System;
 using Consultorio.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Consultorio.Migrations
 {
     [DbContext(typeof(ConsultorioContext))]
-    partial class ConsultorioContextModelSnapshot : ModelSnapshot
+    [Migration("20230803015908_RecriandoNomes")]
+    partial class RecriandoNomes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace Consultorio.Migrations
 
                     b.HasIndex("ProfissionalId");
 
-                    b.ToTable("tb_consulta", (string)null);
+                    b.ToTable("Consultas");
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Especialidade", b =>
@@ -86,7 +89,7 @@ namespace Consultorio.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tb_especialidades", (string)null);
+                    b.ToTable("Especialidades");
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Paciente", b =>
@@ -120,7 +123,7 @@ namespace Consultorio.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tb_paciente", (string)null);
+                    b.ToTable("Pacientes");
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Profissional", b =>
@@ -143,7 +146,7 @@ namespace Consultorio.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tb_profissional", (string)null);
+                    b.ToTable("Profissionais");
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.ProfissionalEspecialidade", b =>

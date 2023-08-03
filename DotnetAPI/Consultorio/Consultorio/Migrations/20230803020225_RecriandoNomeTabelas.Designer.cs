@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Consultorio.Migrations
 {
     [DbContext(typeof(ConsultorioContext))]
-    [Migration("20230802024512_RecriandoBanco")]
-    partial class RecriandoBanco
+    [Migration("20230803020225_RecriandoNomeTabelas")]
+    partial class RecriandoNomeTabelas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,22 +39,23 @@ namespace Consultorio.Migrations
                         .HasColumnName("data_horario");
 
                     b.Property<int>("EspecialidadeId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id_especialidade");
 
                     b.Property<int>("PacienteId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id_paciente");
 
                     b.Property<decimal>("Preco")
                         .HasColumnType("decimal(7,2)")
                         .HasColumnName("preco");
 
                     b.Property<int>("ProfissionalId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id_profissional");
 
                     b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(1)
                         .HasColumnName("status");
 
                     b.HasKey("Id");
@@ -65,91 +66,104 @@ namespace Consultorio.Migrations
 
                     b.HasIndex("ProfissionalId");
 
-                    b.ToTable("Consultas");
+                    b.ToTable("tb_consulta", (string)null);
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Especialidade", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Ativa")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativa");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("nome");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Especialidade");
+                    b.ToTable("tb_especialidades", (string)null);
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Paciente", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Celular")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("celular");
 
                     b.Property<string>("Cpf")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(11)")
+                        .HasColumnName("cpf");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("email");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("nome");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Paciente");
+                    b.ToTable("tb_paciente", (string)null);
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Profissional", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Ativo")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("nome");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Profissional");
+                    b.ToTable("tb_profissional", (string)null);
                 });
 
-            modelBuilder.Entity("EspecialidadeProfissional", b =>
+            modelBuilder.Entity("Consultorio.Models.Entities.ProfissionalEspecialidade", b =>
                 {
-                    b.Property<int>("EspecialidadesId")
-                        .HasColumnType("integer");
+                    b.Property<int>("EspecialidadeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_especialidade");
 
-                    b.Property<int>("ProfissionaisId")
-                        .HasColumnType("integer");
+                    b.Property<int>("ProfissionalId")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_profissional");
 
-                    b.HasKey("EspecialidadesId", "ProfissionaisId");
+                    b.HasKey("EspecialidadeId", "ProfissionalId");
 
-                    b.HasIndex("ProfissionaisId");
+                    b.HasIndex("ProfissionalId");
 
-                    b.ToTable("EspecialidadeProfissional");
+                    b.ToTable("tb_profissional_especialidade", (string)null);
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Consulta", b =>
@@ -179,19 +193,23 @@ namespace Consultorio.Migrations
                     b.Navigation("Profissional");
                 });
 
-            modelBuilder.Entity("EspecialidadeProfissional", b =>
+            modelBuilder.Entity("Consultorio.Models.Entities.ProfissionalEspecialidade", b =>
                 {
-                    b.HasOne("Consultorio.Models.Entities.Especialidade", null)
+                    b.HasOne("Consultorio.Models.Entities.Especialidade", "Especialidade")
                         .WithMany()
-                        .HasForeignKey("EspecialidadesId")
+                        .HasForeignKey("EspecialidadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Consultorio.Models.Entities.Profissional", null)
+                    b.HasOne("Consultorio.Models.Entities.Profissional", "Profissionais")
                         .WithMany()
-                        .HasForeignKey("ProfissionaisId")
+                        .HasForeignKey("ProfissionalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Especialidade");
+
+                    b.Navigation("Profissionais");
                 });
 
             modelBuilder.Entity("Consultorio.Models.Entities.Especialidade", b =>

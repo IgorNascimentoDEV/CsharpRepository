@@ -1,4 +1,6 @@
 using Consultorio.Context;
+using Consultorio.Repository;
+using Consultorio.Repository.Interfaces;
 using Consultorio.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,12 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IBaseRepository, BaseRepository>();
+builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
 
 //Capturando string de conexão do appsettings
 var connectionString = builder.Configuration.GetConnectionString("Default");
