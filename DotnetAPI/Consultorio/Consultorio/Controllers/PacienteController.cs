@@ -15,9 +15,9 @@ namespace Consultorio.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var pacientes = _pacienteRepository.GetPacientes();
+            var pacientes = await _pacienteRepository.GetPacientesAsync();
 
             return pacientes.Any()
                 ? Ok(pacientes)
@@ -25,9 +25,9 @@ namespace Consultorio.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var paciente = _pacienteRepository.GetPacienteById(id);
+            var paciente = await _pacienteRepository.GetPacienteByIdAsync(id);
             return paciente != null
                 ? Ok(paciente)
                 : BadRequest("paciente não encontrado");
