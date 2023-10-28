@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -6,15 +7,15 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using MySql.Data.MySqlClient;
 
-
-    string csvFilePath = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\DENGBR22.csv"; // Substitua pelo caminho do seu arquivo CSV
-    string connectionString = "Server=localhost;Port=3306;User Id=root;Password=123456789;Database=dados";
-    MySqlConnection connection = new MySqlConnection(connectionString);
-    string sucessoFolder = "Sucesso";
-    string falhaFolder = "Falha";
-
-    try
+class Program
+{
+    static void Main()
     {
+        string csvFilePath = "C:\\Users\\WTINFO PC\\Documents\\trabalho_puc\\dados_puc\\DENGBR22 (1).csv"; // Substitua pelo caminho do seu arquivo CSV
+        string connectionString = "Server=localhost;Port=3306;User Id=root;Password=123456;Database=dados";
+        string sucessoFolder = "Sucesso";
+        string falhaFolder = "Falha";
+
         if (!Directory.Exists(sucessoFolder))
         {
             Directory.CreateDirectory(sucessoFolder);
@@ -25,44 +26,42 @@ using MySql.Data.MySqlClient;
             Directory.CreateDirectory(falhaFolder);
         }
 
+        List<Registro> registros = ReadCsvFile(csvFilePath);
 
-        using (var conecxão = new MySqlConnection(connectionString))
+        using (var connection = new MySqlConnection(connectionString))
         {
-            conecxão.Open();
-
-            List<Registro> registros; // Declare a variável fora do bloco using.
-
-            using (var reader = new StreamReader(csvFilePath))
-            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)))
-            {
-                registros = csv.GetRecords<Registro>().ToList();
-            }
+            connection.Open();
 
             foreach (var item in registros)
             {
-                if (InserirRegistroNoBanco(conecxão, item))
+                if (InserirRegistroNoBanco(connection, item))
                 {
-                    Console.WriteLine($"Registro inserido com sucesso:");
-                    //MoverArquivoParaPasta(sucessoFolder, item);
+                    Console.WriteLine("Registro inserido com sucesso: " + item.ID_AGRAVO);
+                    MoverArquivoParaPasta(sucessoFolder, item);
                 }
                 else
                 {
-                    Console.WriteLine($"Falha ao inserir registro");
-                    //MoverArquivoParaPasta(falhaFolder, item);
+                    Console.WriteLine("Falha ao inserir registro");
+                    MoverArquivoParaPasta(falhaFolder, item);
                 }
             }
         }
     }
-    catch (Exception ex)
+
+    static List<Registro> ReadCsvFile(string filePath)
     {
-        Console.WriteLine($"Erro: {ex.Message}");
+        using (var reader = new StreamReader(filePath))
+        using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)))
+        {
+            return csv.GetRecords<Registro>().ToList();
+        }
     }
 
-    bool InserirRegistroNoBanco(MySqlConnection connection, Registro item)
+    static bool InserirRegistroNoBanco(MySqlConnection connection, Registro item)
     {
         try
         {
-            MySqlCommand cmd = new MySqlCommand("INSERT INTO casos_dengue_2022_2 (TP_NOT, ID_AGRAVO, DT_NOTIFIC, SEM_NOT, NU_ANO, SG_UF_NOT, ID_MUNICIP, ID_REGIONA, ID_UNIDADE, DT_SIN_PRI, SEM_PRI, ANO_NASC, NU_IDADE_N, CS_SEXO, CS_GESTANT, CS_RACA, CS_ESCOL_N, SG_UF, ID_MN_RESI, ID_RG_RESI, ID_PAIS, DT_INVEST, ID_OCUPA_N, FEBRE, MIALGIA, CEFALEIA, EXANTEMA, VOMITO, NAUSEA, DOR_COSTAS, CONJUNTVIT, ARTRITE, ARTRALGIA, PETEQUIA_N, LEUCOPENIA, LACO, DOR_RETRO, DIABETES, HEMATOLOG, HEPATOPAT, RENAL, HIPERTENSA, ACIDO_PEPT, AUTO_IMUNE, DT_CHIK_S1, DT_CHIK_S2, DT_PRNT, RES_CHIKS1, RES_CHIKS2, RESUL_PRNT, DT_SORO, RESUL_SORO, DT_NS1, RESUL_NS1, DT_VIRAL, RESUL_VI_N, DT_PCR, RESUL_PCR_, SOROTIPO, HISTOPA_N, IMUNOH_N, HOSPITALIZ, DT_INTERNA, UF, MUNICIPIO, TPAUTOCTO, COUFINF, COPAISINF, COMUNINF, CLASSI_FIN, CRITERIO, DOENCA_TRA, CLINC_CHIK, EVOLUCAO, DT_OBITO, DT_ENCERRA, ALRM_HIPOT, ALRM_PLAQ, ALRM_VOM, ALRM_SANG, ALRM_HEMAT, ALRM_ABDOM, ALRM_LETAR, ALRM_HEPAT, ALRM_LIQ, DT_ALRM, GRAV_PULSO, GRAV_CONV, GRAV_ENCH, GRAV_INSUF, GRAV_TAQUI, GRAV_EXTRE, GRAV_HIPOT, GRAV_HEMAT, GRAV_MELEN, GRAV_METRO, GRAV_SANG, GRAV_AST, GRAV_MIOC, GRAV_CONSC, GRAV_ORGAO, DT_GRAV, MANI_HEMOR, EPISTAXE, GENGIVO, METRO, PETEQUIAS, HEMATURA, SANGRAM, LACO_N, PLASMATICO, EVIDENCIA, PLAQ_MENOR, CON_FHD, TP_SISTEMA, NDUPLIC_N, DT_DIGITA, CS_FLXRET, FLXRECEBI, MIGRADO_W) " +
+            MySqlCommand cmd = new MySqlCommand("INSERT INTO casos_dengue_2022_v2 (TP_NOT, ID_AGRAVO, DT_NOTIFIC, SEM_NOT, NU_ANO, SG_UF_NOT, ID_MUNICIP, ID_REGIONA, ID_UNIDADE, DT_SIN_PRI, SEM_PRI, ANO_NASC, NU_IDADE_N, CS_SEXO, CS_GESTANT, CS_RACA, CS_ESCOL_N, SG_UF, ID_MN_RESI, ID_RG_RESI, ID_PAIS, DT_INVEST, ID_OCUPA_N, FEBRE, MIALGIA, CEFALEIA, EXANTEMA, VOMITO, NAUSEA, DOR_COSTAS, CONJUNTVIT, ARTRITE, ARTRALGIA, PETEQUIA_N, LEUCOPENIA, LACO, DOR_RETRO, DIABETES, HEMATOLOG, HEPATOPAT, RENAL, HIPERTENSA, ACIDO_PEPT, AUTO_IMUNE, DT_CHIK_S1, DT_CHIK_S2, DT_PRNT, RES_CHIKS1, RES_CHIKS2, RESUL_PRNT, DT_SORO, RESUL_SORO, DT_NS1, RESUL_NS1, DT_VIRAL, RESUL_VI_N, DT_PCR, RESUL_PCR_, SOROTIPO, HISTOPA_N, IMUNOH_N, HOSPITALIZ, DT_INTERNA, UF, MUNICIPIO, TPAUTOCTO, COUFINF, COPAISINF, COMUNINF, CLASSI_FIN, CRITERIO, DOENCA_TRA, CLINC_CHIK, EVOLUCAO, DT_OBITO, DT_ENCERRA, ALRM_HIPOT, ALRM_PLAQ, ALRM_VOM, ALRM_SANG, ALRM_HEMAT, ALRM_ABDOM, ALRM_LETAR, ALRM_HEPAT, ALRM_LIQ, DT_ALRM, GRAV_PULSO, GRAV_CONV, GRAV_ENCH, GRAV_INSUF, GRAV_TAQUI, GRAV_EXTRE, GRAV_HIPOT, GRAV_HEMAT, GRAV_MELEN, GRAV_METRO, GRAV_SANG, GRAV_AST, GRAV_MIOC, GRAV_CONSC, GRAV_ORGAO, DT_GRAV, MANI_HEMOR, EPISTAXE, GENGIVO, METRO, PETEQUIAS, HEMATURA, SANGRAM, LACO_N, PLASMATICO, EVIDENCIA, PLAQ_MENOR, CON_FHD, TP_SISTEMA, NDUPLIC_N, DT_DIGITA, CS_FLXRET, FLXRECEBI, MIGRADO_W) " +
                                               "VALUES (@TP_NOT, @ID_AGRAVO, @DT_NOTIFIC, @SEM_NOT, @NU_ANO, @SG_UF_NOT, @ID_MUNICIP, @ID_REGIONA, @ID_UNIDADE, @DT_SIN_PRI, @SEM_PRI, @ANO_NASC, @NU_IDADE_N, @CS_SEXO, @CS_GESTANT, @CS_RACA, @CS_ESCOL_N, @SG_UF, @ID_MN_RESI, @ID_RG_RESI, @ID_PAIS, @DT_INVEST, @ID_OCUPA_N, @FEBRE, @MIALGIA, @CEFALEIA, @EXANTEMA, @VOMITO, @NAUSEA, @DOR_COSTAS, @CONJUNTVIT, @ARTRITE, @ARTRALGIA, @PETEQUIA_N, @LEUCOPENIA, @LACO, @DOR_RETRO, @DIABETES, @HEMATOLOG, @HEPATOPAT, @RENAL, @HIPERTENSA, @ACIDO_PEPT, @AUTO_IMUNE, @DT_CHIK_S1, @DT_CHIK_S2, @DT_PRNT, @RES_CHIKS1, @RES_CHIKS2, @RESUL_PRNT, @DT_SORO, @RESUL_SORO, @DT_NS1, @RESUL_NS1, @DT_VIRAL, @RESUL_VI_N, @DT_PCR, @RESUL_PCR_, @SOROTIPO, @HISTOPA_N, @IMUNOH_N, @HOSPITALIZ, @DT_INTERNA, @UF, @MUNICIPIO, @TPAUTOCTO, @COUFINF, @COPAISINF, @COMUNINF, @CLASSI_FIN, @CRITERIO, @DOENCA_TRA, @CLINC_CHIK, @EVOLUCAO, @DT_OBITO, @DT_ENCERRA, @ALRM_HIPOT, @ALRM_PLAQ, @ALRM_VOM, @ALRM_SANG, @ALRM_HEMAT, @ALRM_ABDOM, @ALRM_LETAR, @ALRM_HEPAT, @ALRM_LIQ, @DT_ALRM, @GRAV_PULSO, @GRAV_CONV, @GRAV_ENCH, @GRAV_INSUF, @GRAV_TAQUI, @GRAV_EXTRE, @GRAV_HIPOT, @GRAV_HEMAT, @GRAV_MELEN, @GRAV_METRO, @GRAV_SANG, @GRAV_AST, @GRAV_MIOC, @GRAV_CONSC, @GRAV_ORGAO, @DT_GRAV, @MANI_HEMOR, @EPISTAXE, @GENGIVO, @METRO, @PETEQUIAS, @HEMATURA, @SANGRAM, @LACO_N, @PLASMATICO, @EVIDENCIA, @PLAQ_MENOR, @CON_FHD, @TP_SISTEMA, @NDUPLIC_N, @DT_DIGITA, @CS_FLXRET, @FLXRECEBI, @MIGRADO_W);", connection);
 
             cmd.Parameters.AddWithValue("@TP_NOT", item.TP_NOT);
@@ -197,13 +196,145 @@ using MySql.Data.MySqlClient;
         }
     }
 
-    static void MoverArquivoParaPasta(string pasta, string filePath)
+    static void MoverArquivoParaPasta(string pasta, Registro item)
     {
-        string fileName = Path.GetFileName(filePath);
-        string destino = Path.Combine(pasta, fileName);
-        File.Move(filePath, destino);
+        // Suponha que o nome do arquivo esteja contido no objeto 'item'.
+        string fileName = item.ID_AGRAVO;
+
+        // Crie o arquivo CSV no caminho de destino.
+        string destino = Path.Combine(pasta, fileName + ".csv");
+
+
+        // Crie uma lista de valores a partir das propriedades do objeto Registro.
+        var valores = new List<string>
+    {
+        item.TP_NOT?.ToString(),
+        item.ID_AGRAVO,
+        item.DT_NOTIFIC?.ToString(),
+        item.SEM_NOT?.ToString(),
+        item.NU_ANO?.ToString(),
+        item.SG_UF_NOT?.ToString(),
+        item.ID_MUNICIP?.ToString(),
+        item.ID_REGIONA?.ToString(),
+        item.ID_UNIDADE?.ToString(),
+        item.DT_SIN_PRI,
+        item.SEM_PRI?.ToString(),
+        item.ANO_NASC?.ToString(),
+        item.NU_IDADE_N?.ToString(),
+        item.CS_SEXO,
+        item.CS_GESTANT?.ToString(),
+        item.CS_RACA?.ToString(),
+        item.CS_ESCOL_N?.ToString(),
+        item.SG_UF?.ToString(),
+        item.ID_MN_RESI?.ToString(),
+        item.ID_RG_RESI?.ToString(),
+        item.ID_PAIS?.ToString(),
+        item.DT_INVEST,
+        item.ID_OCUPA_N?.ToString(),
+        item.FEBRE?.ToString(),
+        item.MIALGIA?.ToString(),
+        item.CEFALEIA?.ToString(),
+        item.EXANTEMA?.ToString(),
+        item.VOMITO?.ToString(),
+        item.NAUSEA?.ToString(),
+        item.DOR_COSTAS?.ToString(),
+        item.CONJUNTVIT?.ToString(),
+        item.ARTRITE?.ToString(),
+        item.ARTRALGIA?.ToString(),
+        item.PETEQUIA_N?.ToString(),
+        item.LEUCOPENIA?.ToString(),
+        item.LACO?.ToString(),
+        item.DOR_RETRO?.ToString(),
+        item.DIABETES?.ToString(),
+        item.HEMATOLOG?.ToString(),
+        item.HEPATOPAT?.ToString(),
+        item.RENAL?.ToString(),
+        item.HIPERTENSA?.ToString(),
+        item.ACIDO_PEPT?.ToString(),
+        item.AUTO_IMUNE?.ToString(),
+        item.DT_CHIK_S1,
+        item.DT_CHIK_S2,
+        item.DT_PRNT,
+        item.RES_CHIKS1?.ToString(),
+        item.RES_CHIKS2?.ToString(),
+        item.RESUL_PRNT?.ToString(),
+        item.DT_SORO,
+        item.RESUL_SORO?.ToString(),
+        item.DT_NS1,
+        item.RESUL_NS1?.ToString(),
+        item.DT_VIRAL,
+        item.RESUL_VI_N?.ToString(),
+        item.DT_PCR,
+        item.RESUL_PCR_?.ToString(),
+        item.SOROTIPO?.ToString(),
+        item.HISTOPA_N?.ToString(),
+        item.IMUNOH_N?.ToString(),
+        item.HOSPITALIZ?.ToString(),
+        item.DT_INTERNA,
+        item.UF?.ToString(),
+        item.MUNICIPIO?.ToString(),
+        item.TPAUTOCTO?.ToString(),
+        item.COUFINF?.ToString(),
+        item.COPAISINF?.ToString(),
+        item.COMUNINF?.ToString(),
+        item.CLASSI_FIN?.ToString(),
+        item.CRITERIO?.ToString(),
+        item.DOENCA_TRA?.ToString(),
+        item.CLINC_CHIK?.ToString(),
+        item.EVOLUCAO?.ToString(),
+        item.DT_OBITO,
+        item.DT_ENCERRA,
+        item.ALRM_HIPOT?.ToString(),
+        item.ALRM_PLAQ?.ToString(),
+        item.ALRM_VOM?.ToString(),
+        item.ALRM_SANG?.ToString(),
+        item.ALRM_HEMAT?.ToString(),
+        item.ALRM_ABDOM?.ToString(),
+        item.ALRM_LETAR?.ToString(),
+        item.ALRM_HEPAT?.ToString(),
+        item.ALRM_LIQ?.ToString(),
+        item.DT_ALRM,
+        item.GRAV_PULSO?.ToString(),
+        item.GRAV_CONV?.ToString(),
+        item.GRAV_ENCH?.ToString(),
+        item.GRAV_INSUF?.ToString(),
+        item.GRAV_TAQUI?.ToString(),
+        item.GRAV_EXTRE?.ToString(),
+        item.GRAV_HIPOT?.ToString(),
+        item.GRAV_HEMAT?.ToString(),
+        item.GRAV_MELEN?.ToString(),
+        item.GRAV_METRO?.ToString(),
+        item.GRAV_SANG?.ToString(),
+        item.GRAV_AST?.ToString(),
+        item.GRAV_MIOC?.ToString(),
+        item.GRAV_CONSC?.ToString(),
+        item.GRAV_ORGAO?.ToString(),
+        item.DT_GRAV,
+        item.MANI_HEMOR?.ToString(),
+        item.EPISTAXE?.ToString(),
+        item.GENGIVO?.ToString(),
+        item.METRO?.ToString(),
+        item.PETEQUIAS?.ToString(),
+        item.HEMATURA?.ToString(),
+        item.SANGRAM?.ToString(),
+        item.LACO_N?.ToString(),
+        item.PLASMATICO?.ToString(),
+        item.EVIDENCIA?.ToString(),
+        item.PLAQ_MENOR?.ToString(),
+        item.CON_FHD?.ToString(),
+        item.COMPLICA?.ToString(),
+        item.TP_SISTEMA?.ToString(),
+        item.NDUPLIC_N?.ToString(),
+        item.DT_DIGITA,
+        item.CS_FLXRET?.ToString(),
+        item.FLXRECEBI?.ToString(),
+        item.MIGRADO_W?.ToString()
+    };
+
+        // Crie a linha CSV combinando os valores com vírgulas.
+        string linhaCSV = string.Join(",", valores);
+
+        // Escreva a linha CSV no arquivo.
+        File.WriteAllText(destino, linhaCSV);
     }
-
-
-
-
+}
